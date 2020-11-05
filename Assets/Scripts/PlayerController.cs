@@ -43,7 +43,7 @@ public class PlayerController : MonoBehaviour
         }
         if (Input.GetAxis("Vertical") > upperDeadzone || Input.GetAxis("Vertical") < lowerDeadzone)
         {
-            tiltX = Input.GetAxis("Vertical") * tiltAngle;
+            tiltX = Input.GetAxis("Vertical") * tiltAngle * -1;
         }
         else
         {
@@ -58,6 +58,6 @@ public class PlayerController : MonoBehaviour
     //make the player bounce when hitting the ground and move if they are on an angle
     void OnCollisionEnter(Collision collision)
     {
-        rigidbody.velocity = new Vector3(((bouncePower * tiltZ / tiltAngle) * -1), bouncePower, ((bouncePower * tiltX / tiltAngle) * -1));
+        rigidbody.velocity = new Vector3(((bouncePower * tiltZ / tiltAngle) * -1), bouncePower, (bouncePower * tiltX / tiltAngle));
     }
 }
