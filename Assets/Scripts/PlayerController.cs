@@ -58,6 +58,6 @@ public class PlayerController : MonoBehaviour
     //make the player bounce when hitting the ground and move if they are on an angle
     void OnCollisionEnter(Collision collision)
     {
-        rigidbody.velocity = new Vector3(((bouncePower * tiltZ / tiltAngle) * -1), bouncePower, (bouncePower * tiltX / tiltAngle));
+        rigidbody.velocity = new Vector3(((bouncePower * tiltZ / tiltAngle) * -1), bouncePower, ((bouncePower * tiltX / tiltAngle) * -1));
     }
 }
