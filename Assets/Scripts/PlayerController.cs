@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
+    const float MAX_VELOCITY = 1;
+
     public float bouncePower;
     public Rigidbody rigidbody;
     
@@ -11,53 +14,49 @@ public class PlayerController : MonoBehaviour
     public float tiltAngle = 50.0f;
 
     public float tiltX;
+    public float tiltY;
     public float tiltZ;
+
+    public float xAngle, zAngle;
+
+    public float rotateSpeed;
+
+    //must be less than 1 and greater than 0 to function
+    public float decel;
 
     public float vert;
     public float hori;
-
-    const float upperDeadzone = 0.2f;
-    const float lowerDeadzone = -0.2f;
 
     // Start is called before the first frame update
     void Start()
     {
         rigidbody = GetComponent<Rigidbody>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        //rotate the player based on the left thumbs
+        tiltZ = Input.GetAxis("MoveHorizontal") * tiltAngle * -1f;
+        
+        tiltX = Input.GetAxis("MoveVertical") * tiltAngle * -1f;
 
-        vert = Input.GetAxis("Vertical");
-        hori = Input.GetAxis("Horizontal");
+        // rotate the player based on right thumb stick
+        tiltY += (Input.GetAxis("CameraHorizontal") * rotateSpeed);
 
-        //rotate the player
-        if (Input.GetAxis("Horizontal") > upperDeadzone || Input.GetAxis("Horizontal") < lowerDeadzone)
-        {
-            tiltZ = Input.GetAxis("Horizontal") * tiltAngle;
-        }
-        else
-        {
-            tiltZ = 0f;
-        }
-        if (Input.GetAxis("Vertical") > upperDeadzone || Input.GetAxis("Vertical") < lowerDeadzone)
-        {
-            tiltX = Input.GetAxis("Vertical") * tiltAngle * -1;
-        }
-        else
-        {
-            tiltX = 0f;
-        }
-
-        Quaternion target = Quaternion.Euler(tiltX, 0, tiltZ);
+        Quaternion target = Quaternion.Euler(tiltX, tiltY, tiltZ);
         // Dampen towards the target rotation
         transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime * smooth);
+
+        //calculate the x and z angle to make the player move in the direction the camera is pointing
+        xAngle = bouncePower * ((tiltX / tiltAngle) * (float)Math.Cos(tiltY * Math.PI / 180) + ((tiltZ / tiltAngle) * (float)Math.Sin(tiltY * Math.PI / 180))); 
+        zAngle = bouncePower * ((tiltX / tiltAngle) * (float)Math.Sin(tiltY * Math.PI / 180) + ((tiltZ / tiltAngle) * (float)Math.Cos(tiltY * Math.PI / 180) * -1f)); 
     }
 
     //make the player bounce when hitting the ground and move if they are on an angle
     void OnCollisionEnter(Collision collision)
     {
-        rigidbody.velocity = new Vector3(((bouncePower * tiltZ / tiltAngle) * -1), bouncePower, (bouncePower * tiltX / tiltAngle));
+        rigidbody.velocity = new Vector3(zAngle, bouncePower,  xAngle);
     }
 }
